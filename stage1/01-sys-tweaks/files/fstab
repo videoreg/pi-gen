@@ -1,3 +1,4 @@
 proc            /proc           proc    defaults          0       0
-BOOTDEV  /boot/firmware  vfat    defaults          0       2
-ROOTDEV  /               ext4    defaults,noatime  0       1
+BOOTDEV         /boot/firmware  vfat    defaults          0       2
+ROOTDEV         /               ext4    defaults,noatime  0       1
+CUSTOMDEV       /mnt/data       vfat    defaults,noatime,uid=USER_UID,gid=USER_GID,umask=0022,nofail  0       2

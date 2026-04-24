@@ -7,3 +7,4 @@ SKIP_IMAGES
 .pc
 *-pc
 .vscode/
+CLAUDE.md
