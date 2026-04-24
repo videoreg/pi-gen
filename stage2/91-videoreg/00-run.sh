@@ -1,0 +1,29 @@
+#!/bin/bash -e
+
+VIDEOREG_DIR="/home/${FIRST_USER_NAME}/videoreg"
+
+echo "Start install videoreg to ${VIDEOREG_DIR}"
+
+on_chroot << EOF
+  mkdir -m 755 "${VIDEOREG_DIR}"
+  chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} "${VIDEOREG_DIR}"
+EOF
+
+git clone --depth 1 https://github.com/videoreg/pi-videoreg.git "${ROOTFS_DIR}/${VIDEOREG_DIR}"
+
+on_chroot << EOF
+  chown -R ${FIRST_USER_NAME}:${FIRST_USER_NAME} "${VIDEOREG_DIR}"
+
+  cd "${VIDEOREG_DIR}"
+
+  ssh-keyscan github.com >> /home/${FIRST_USER_NAME}/.ssh/known_hosts
+
+  source ./tools/init.sh
+
+  vrg-install \
+    --user $FIRST_USER_NAME \
+    --group $FIRST_USER_NAME \
+    --storage-path "/mnt/data/videoreg"
+EOF
+
+echo "Videoreg installed successfully!"

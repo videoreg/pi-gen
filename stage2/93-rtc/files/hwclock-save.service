@@ -1,0 +1,23 @@
+[Unit]
+Description=Save system time to hardware RTC after NTP sync
+Documentation=man:hwclock(8)
+After=time-sync.target
+Wants=time-sync.target
+
+[Service]
+Type=oneshot
+
+# Небольшая задержка для гарантии синхронизации
+ExecStartPre=/bin/sleep 10
+
+# Проверка синхронизации (можно закомментировать, если мешает)
+ExecCondition=/bin/sh -c 'timedatectl show -p NTPSynchronized --value | grep -q yes'
+
+# Запись в RTC
+ExecStart=/usr/sbin/hwclock --systohc --rtc=/dev/rtc0 --utc
+
+# Логирование
+ExecStartPost=/usr/bin/logger "RTC synced from system time (NTP)"
+
+[Install]
+WantedBy=sysinit.target
