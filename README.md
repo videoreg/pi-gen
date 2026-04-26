@@ -1,5 +1,16 @@
 # pi-gen
 
+> [!NOTE]
+> **This fork extends the original [RPI-Distro/pi-gen](https://github.com/RPI-Distro/pi-gen) project with additional configuration for [Pi-Videoreg project](https://github.com/videoreg/pi-videoreg)**
+>
+> Basically, it builds `.img` of Raspberry Pi OS with many fine tuning steps. The most notable:
+>
+> - `stage2/90-rpicam-apps` — build of custom version [videoreg/rpicam-apps](https://github.com/videoreg/rpicam-apps)
+> - `stage2/91-videoreg` — install [videoreg/pi-videoreg](https://github.com/videoreg/pi-videoreg)
+> - `stage2/92-disable-services` — disabled a lot of services, including Raspberry Pi Cloud
+> - added 3rd sector to SD-card (see `stage1/01-sys-tweaks/files/fstab`)
+> 
+
 Tool used to create Raspberry Pi OS images, and custom images based on Raspberry Pi OS,
 which was in turn derived from the Raspbian project.
 
