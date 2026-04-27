@@ -1,0 +1,18 @@
+IMG_NAME='videoreg'
+RELEASE=trixie
+TARGET_HOSTNAME='pivideoreg'
+LOCALE_DEFAULT='en_US.UTF-8'
+KEYBOARD_KEYMAP='us'
+KEYBOARD_LAYOUT='English (US)'
+TIMEZONE_DEFAULT='America/Los_Angeles'
+FIRST_USER_NAME='vrg'
+FIRST_USER_PASS='videoreg123'
+ENABLE_SSH=1
+WPA_ESSID=your_network_name
+WPA_PASSWORD=your_network_pass
+WPA_COUNTRY='US'
+STAGE_LIST="stage0 stage1 stage2"
+ENABLE_CLOUD_INIT=0
+# DEPLOY_COMPRESSION="none"
+
+export ARCH=arm64
