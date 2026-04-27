@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+if [ -f "${WORK_DIR}/img_name" ]; then
+  IMG_FILENAME=$(cat "${WORK_DIR}/img_name")
+  ARCHIVE_FILENAME="${IMG_FILENAME}"
+  IMG_SUFFIX=""
+fi
+
 IMG_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}${IMG_SUFFIX}.img"
 INFO_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}${IMG_SUFFIX}.info"
 SBOM_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}${IMG_SUFFIX}.sbom"
