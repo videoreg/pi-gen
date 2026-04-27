@@ -1,6 +1,11 @@
 #!/bin/bash -e
 
-IMG_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}${IMG_SUFFIX}.img"
+if [ -f "${WORK_DIR}/img_name" ]; then
+  IMG_FILENAME=$(cat "${WORK_DIR}/img_name")
+  IMG_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}.img"
+else
+  IMG_FILE="${STAGE_WORK_DIR}/${IMG_FILENAME}${IMG_SUFFIX}.img"
+fi
 
 unmount_image "${IMG_FILE}"
 
