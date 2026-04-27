@@ -25,8 +25,6 @@ on_chroot << EOF
 
   cd "${VIDEOREG_DIR}"
 
-  ssh-keyscan github.com >> /home/${FIRST_USER_NAME}/.ssh/known_hosts
-
   source ./tools/init.sh
 
   vrg-install \
