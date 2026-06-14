@@ -18,8 +18,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Install qemu-user-static
-        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+      - name: Install qemu-user-binfmt
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-binfmt qemu-user-static binfmt-support
 
       - name: Run build script
         run: ./build-docker.sh
