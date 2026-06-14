@@ -21,6 +21,9 @@ jobs:
       - name: Install qemu-user-binfmt
         run: sudo apt-get update && sudo apt-get install -y qemu-user-binfmt binfmt-support
 
+      - name: Register binfmt handlers (arm64)
+        run: docker run --privileged --rm tonistiigi/binfmt --install arm64
+
       - name: Run build script
         run: ./build-docker.sh
 
