@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Install qemu-user-binfmt
-        run: sudo apt-get update && sudo apt-get install -y qemu-user-binfmt qemu-user-static binfmt-support
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-binfmt binfmt-support
 
       - name: Run build script
         run: ./build-docker.sh
