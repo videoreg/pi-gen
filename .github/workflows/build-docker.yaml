@@ -9,7 +9,10 @@ on:
 
 jobs:
   run-arm-container:
-    runs-on: ubuntu-latest
+    # Native arm64 runner: build-docker.sh detects aarch64 and skips qemu/binfmt
+    # entirely, matching the working native build on the Raspberry Pi. Emulated
+    # arm64 builds on x86 runners are unreliable for pi-gen.
+    runs-on: ubuntu-24.04-arm
 
     permissions:
       contents: write
@@ -17,12 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Install qemu-user-binfmt
-        run: sudo apt-get update && sudo apt-get install -y qemu-user-binfmt binfmt-support
-
-      - name: Register binfmt handlers (arm64)
-        run: docker run --privileged --rm tonistiigi/binfmt --install arm64
 
       - name: Run build script
         run: ./build-docker.sh
