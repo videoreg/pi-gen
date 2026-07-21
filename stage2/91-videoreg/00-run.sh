@@ -30,7 +30,8 @@ on_chroot << EOF
   vrg-install \
     --user $FIRST_USER_NAME \
     --group $FIRST_USER_NAME \
-    --storage-path "/mnt/data/videoreg"
+    --storage-path "/mnt/data/videoreg" \
+    --yes
 EOF
 
 echo "Videoreg installed successfully!"
