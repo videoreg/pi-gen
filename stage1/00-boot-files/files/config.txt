@@ -8,7 +8,7 @@ dtparam=i2c_arm=on
 #dtparam=spi=on
 
 # Enable audio (loads snd_bcm2835)
-dtparam=audio=on
+dtparam=audio=off
 
 # Additional overlays and parameters are documented
 # /boot/firmware/overlays/README
@@ -52,6 +52,5 @@ dtoverlay=dwc2,dr_mode=host
 enable_uart=1
 uart_2ndstage=1
 dtoverlay=i2c-rtc,ds3231,addr=0x68
-dtoverlay=disable-bt
 enable_tvout=0
 arm_freq=600
