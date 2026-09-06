@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+# Tag of the videoreg/rpicam-apps fork to build. Pin it so images are
+# reproducible: an unpinned clone takes whatever develop points at on the
+# build day, which is how the 2026-08-28 image ended up pairing a v1.11.1
+# fork with libcamera 0.7.2.
+RPICAM_APPS_REF="v1.11.1-vrg1"
+
 on_chroot << EOF
 # Установка build-зависимостей
 apt-get update
@@ -9,7 +15,6 @@ apt-get install -y \
     meson \
     cmake \
     ninja-build \
-    libcamera-dev \
     libepoxy-dev \
     libjpeg-dev \
     libtiff5-dev \
@@ -26,7 +31,8 @@ apt-get install -y \
 EOF
 
 # Клонирование снаружи chroot — SSH-ключи доступны только на хосте сборки
-git clone --depth 1 https://github.com/videoreg/rpicam-apps.git "${ROOTFS_DIR}/tmp/rpicam-apps"
+git clone --depth 1 --branch "${RPICAM_APPS_REF}" \
+  https://github.com/videoreg/rpicam-apps.git "${ROOTFS_DIR}/tmp/rpicam-apps"
 
 on_chroot << EOF
 # Сборка rpicam-apps
