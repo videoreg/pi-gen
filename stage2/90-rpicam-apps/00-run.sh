@@ -82,6 +82,32 @@ apt-get autoremove -y
 # apt-cache pkgnames находит пакеты динамически без хардкода суффикса версии.
 apt-get install -y libopencv-dev
 
+# То же самое для Boost.ProgramOptions. Раньше рантайм выживал попутно, потому что от
+# него зависел стоковый rpicam-apps-core; он больше не ставится (см. 89-libcamera), и
+# autoremove выше уносит библиотеку, после чего ни один rpicam-* не стартует.
+BOOST_PO=\$(apt-cache pkgnames libboost-program-options \
+    | grep -E '^libboost-program-options[0-9]' | sort -V | tail -1)
+if [ -z "\$BOOST_PO" ]; then
+    echo "ERROR: cannot resolve the Boost.ProgramOptions runtime package"
+    exit 1
+fi
+apt-get install -y "\$BOOST_PO"
+
+# Собранное через ninja невидимо для APT, поэтому недостающую рантайм-зависимость
+# ничто не поймает до первого запуска на устройстве. Проверяем здесь и валим сборку,
+# чтобы не выпускать образ с неработающей камерой.
+for f in /usr/local/bin/rpicam-* \
+         /usr/local/lib/aarch64-linux-gnu/librpicam_app.so.1 \
+         /usr/local/lib/aarch64-linux-gnu/rpicam-apps-postproc/*.so \
+         /usr/local/lib/aarch64-linux-gnu/rpicam-apps-encoder/*.so; do
+    [ -e "\$f" ] || continue
+    if ldd "\$f" 2>/dev/null | grep -q 'not found'; then
+        echo "ERROR: unresolved shared libraries in \$f"
+        ldd "\$f" | grep 'not found'
+        exit 1
+    fi
+done
+
 # Очистка кэша
 apt-get clean
 rm -rf /var/lib/apt/lists/*
