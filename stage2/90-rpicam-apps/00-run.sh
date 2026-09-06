@@ -7,7 +7,7 @@
 RPICAM_APPS_REF="v1.11.1-vrg1"
 
 on_chroot << EOF
-# Установка build-зависимостей
+# Install build dependencies
 apt-get update
 apt-get install -y \
     git \
@@ -30,12 +30,12 @@ apt-get install -y \
     libopencv-dev
 EOF
 
-# Клонирование снаружи chroot — SSH-ключи доступны только на хосте сборки
+# Cloned outside the chroot: SSH keys are only available on the build host
 git clone --depth 1 --branch "${RPICAM_APPS_REF}" \
   https://github.com/videoreg/rpicam-apps.git "${ROOTFS_DIR}/tmp/rpicam-apps"
 
 on_chroot << EOF
-# Сборка rpicam-apps
+# Build rpicam-apps
 cd /tmp/rpicam-apps
 
 meson setup --wipe build \
@@ -51,11 +51,11 @@ ninja -C build
 ninja -C build install
 ldconfig
 
-# Очистка исходников
+# Clean up the sources
 cd /tmp
 rm -rf rpicam-apps
 
-# Удаление build-зависимостей
+# Remove the build dependencies
 apt-get remove --purge -y \
     meson \
     cmake \
@@ -74,17 +74,18 @@ apt-get remove --purge -y \
     libavutil-dev \
     libswresample-dev
 
-# Автоудаление ненужных зависимостей (в том числе удалит libopencv-dev и рантайм-либы)
+# Autoremove what is no longer needed (this also takes out libopencv-dev and its runtime libraries)
 apt-get autoremove -y
 
-# Переустановить рантайм-либы OpenCV: rpicam-apps слинкован с ними,
-# но установлен через ninja — APT не знает об этой зависимости.
-# apt-cache pkgnames находит пакеты динамически без хардкода суффикса версии.
+# Reinstall the OpenCV runtime libraries: rpicam-apps links against them but is
+# installed by ninja, so APT has no record of the dependency.
+# apt-cache pkgnames resolves package names dynamically, with no hardcoded version suffix.
 apt-get install -y libopencv-dev
 
-# То же самое для Boost.ProgramOptions. Раньше рантайм выживал попутно, потому что от
-# него зависел стоковый rpicam-apps-core; он больше не ставится (см. 89-libcamera), и
-# autoremove выше уносит библиотеку, после чего ни один rpicam-* не стартует.
+# The same applies to Boost.ProgramOptions. Its runtime used to survive incidentally
+# because the stock rpicam-apps-core depended on it; that package is no longer installed
+# (see 89-libcamera), so the autoremove above takes the library out and no rpicam-* binary
+# can start.
 BOOST_PO=\$(apt-cache pkgnames libboost-program-options \
     | grep -E '^libboost-program-options[0-9]' | sort -V | tail -1)
 if [ -z "\$BOOST_PO" ]; then
@@ -93,9 +94,9 @@ if [ -z "\$BOOST_PO" ]; then
 fi
 apt-get install -y "\$BOOST_PO"
 
-# Собранное через ninja невидимо для APT, поэтому недостающую рантайм-зависимость
-# ничто не поймает до первого запуска на устройстве. Проверяем здесь и валим сборку,
-# чтобы не выпускать образ с неработающей камерой.
+# What ninja installs is invisible to APT, so nothing catches a missing runtime
+# dependency until the first run on a device. Check it here and fail the build rather
+# than ship an image whose camera does not work.
 for f in /usr/local/bin/rpicam-* \
          /usr/local/lib/aarch64-linux-gnu/librpicam_app.so.1 \
          /usr/local/lib/aarch64-linux-gnu/rpicam-apps-postproc/*.so \
@@ -108,7 +109,7 @@ for f in /usr/local/bin/rpicam-* \
     fi
 done
 
-# Очистка кэша
+# Clean the APT cache
 apt-get clean
 rm -rf /var/lib/apt/lists/*
 EOF
