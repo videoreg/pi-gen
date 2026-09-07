@@ -5,8 +5,9 @@
 >
 > Basically, it builds `.img` of Raspberry Pi OS with many fine tuning steps. The most notable:
 >
-> - `stage2/90-rpicam-apps` — build of custom version [videoreg/rpicam-apps](https://github.com/videoreg/rpicam-apps)
-> - `stage2/91-videoreg` — install [videoreg/pi-videoreg](https://github.com/videoreg/pi-videoreg)
+> - `stage2/89-libcamera` — pins libcamera to a build from before the startup-frame regression introduced in 0.7.2 and holds the packages. Without it roughly half of all daylight photos on an ov5647 come out white, because frames the exposure algorithm has not converged on reach the application looking valid. The version lives in `LIBCAMERA_VERSION`; the stage script explains the rest
+> - `stage2/90-rpicam-apps` — build of custom version [videoreg/rpicam-apps](https://github.com/videoreg/rpicam-apps), cloned at the tag in `RPICAM_APPS_REF`
+> - `stage2/91-videoreg` — install [videoreg/pi-videoreg](https://github.com/videoreg/pi-videoreg), cloned at the ref in `VIDEOREG_REF` (its moving `latest` tag by default)
 > - `stage2/92-disable-services` — disabled a lot of services, including Raspberry Pi Cloud
 > - added 3rd sector to SD-card (see `stage1/01-sys-tweaks/files/fstab`)
 > 
