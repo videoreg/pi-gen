@@ -55,6 +55,30 @@ ldconfig
 cd /tmp
 rm -rf rpicam-apps
 
+# rpicam-apps is installed by ninja into /usr/local, so APT has no record of what it
+# links against and the autoremove below would happily take those libraries out - which
+# is how an image once shipped with every rpicam-* binary failing to exec. Resolve the
+# libraries the freshly built binaries actually need and mark their packages manual, so
+# that removing the build dependencies cannot strip them.
+runtime_libs=\$(for f in /usr/local/bin/rpicam-* \
+                        /usr/local/lib/aarch64-linux-gnu/librpicam_app.so.1 \
+                        /usr/local/lib/aarch64-linux-gnu/rpicam-apps-postproc/*.so \
+                        /usr/local/lib/aarch64-linux-gnu/rpicam-apps-encoder/*.so; do
+    [ -e "\$f" ] && ldd "\$f" 2>/dev/null | awk '{print \$3}' | grep '^/'
+done | sed 's#^/lib/#/usr/lib/#' | sort -u)
+if [ -z "\$runtime_libs" ]; then
+    echo "ERROR: could not resolve the runtime libraries of the built binaries"
+    exit 1
+fi
+# ldd reports /lib/... while dpkg records /usr/lib/... on a merged-usr system, hence the
+# rewrite above; without it dpkg-query matches nothing and this silently protects nothing.
+runtime_pkgs=\$(dpkg-query -S \$runtime_libs 2>/dev/null | cut -d: -f1 | sort -u)
+if [ -z "\$runtime_pkgs" ]; then
+    echo "ERROR: none of the runtime libraries mapped back to a package"
+    exit 1
+fi
+apt-mark manual \$runtime_pkgs
+
 # Remove the build dependencies
 apt-get remove --purge -y \
     meson \
@@ -81,18 +105,6 @@ apt-get autoremove -y
 # installed by ninja, so APT has no record of the dependency.
 # apt-cache pkgnames resolves package names dynamically, with no hardcoded version suffix.
 apt-get install -y libopencv-dev
-
-# The same applies to Boost.ProgramOptions. Its runtime used to survive incidentally
-# because the stock rpicam-apps-core depended on it; that package is no longer installed
-# (see 89-libcamera), so the autoremove above takes the library out and no rpicam-* binary
-# can start.
-BOOST_PO=\$(apt-cache pkgnames libboost-program-options \
-    | grep -E '^libboost-program-options[0-9]' | sort -V | tail -1)
-if [ -z "\$BOOST_PO" ]; then
-    echo "ERROR: cannot resolve the Boost.ProgramOptions runtime package"
-    exit 1
-fi
-apt-get install -y "\$BOOST_PO"
 
 # What ninja installs is invisible to APT, so nothing catches a missing runtime
 # dependency until the first run on a device. Check it here and fail the build rather
