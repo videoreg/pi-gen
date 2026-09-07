@@ -9,7 +9,13 @@ on_chroot << EOF
   chown ${FIRST_USER_NAME}:${FIRST_USER_NAME} "${VIDEOREG_DIR}"
 EOF
 
-git clone --depth 1 https://github.com/videoreg/pi-videoreg.git "${ROOTFS_DIR}/${VIDEOREG_DIR}"
+# Ref of the pi-videoreg repo to install. `latest` is a moving tag maintained
+# alongside the version tags there, so an image always gets the newest release
+# rather than whatever develop happened to hold on the build day.
+VIDEOREG_REF="${VIDEOREG_REF:-latest}"
+
+git clone --depth 1 --branch "${VIDEOREG_REF}" \
+  https://github.com/videoreg/pi-videoreg.git "${ROOTFS_DIR}/${VIDEOREG_DIR}"
 
 VIDEOREG_VERSION_FILE="${ROOTFS_DIR}/${VIDEOREG_DIR}/VERSION"
 if [ -f "${VIDEOREG_VERSION_FILE}" ]; then
